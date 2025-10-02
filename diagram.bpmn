@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_11k092c" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.6.1">
+  <bpmn:collaboration id="Collaboration_CRUD_Aluno" name="Workflow CRUD Aluno (Login e Criação)">
+    <bpmn:participant id="Participant_Processo" name="Gestão de Alunos com Login" processRef="Process_CRUD_Aluno_Login" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_CRUD_Aluno_Login" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_Usuario" name="Usuário">
+        <bpmn:flowNodeRef>StartEvent_Login</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_InserirCredenciais</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_PreencherDadosAluno</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Frontend" name="Interface (React/Tailwind)">
+        <bpmn:flowNodeRef>Task_ExibirLogin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EnviarLogin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_LoginSucesso</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExibirErroLogin</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ArmazenarJWT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExibirFormAluno</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_EnviarCriacao</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_AtualizarLista</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Backend" name="Servidor (Node.js/TS)">
+        <bpmn:flowNodeRef>Task_ValidarCredenciais</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_VerificarJWT</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gateway_TokenValido</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_Responder401</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ExecutarCriacao</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Task_ResponderSucesso201</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_ErroSeguranca</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_Database" name="Banco de Dados">
+        <bpmn:flowNodeRef>Task_GravarAluno</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_AlunoCriado</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="StartEvent_Login" name="Início: Acesso ao Sistema">
+      <bpmn:outgoing>Flow_0g72h5p</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Task_ExibirLogin" name="Exibir Formulário de Login">
+      <bpmn:incoming>Flow_0g72h5p</bpmn:incoming>
+      <bpmn:incoming>Flow_08w0g97</bpmn:incoming>
+      <bpmn:outgoing>Flow_0e2w7b8</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:userTask id="Task_InserirCredenciais" name="Inserir Email e Senha">
+      <bpmn:incoming>Flow_0e2w7b8</bpmn:incoming>
+      <bpmn:outgoing>Flow_08z63z8</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_EnviarLogin" name="Enviar Requisição de Login (POST /login)">
+      <bpmn:incoming>Flow_08z63z8</bpmn:incoming>
+      <bpmn:outgoing>Flow_0z050c8</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_ValidarCredenciais" name="Validar Credenciais e Gerar JWT">
+      <bpmn:incoming>Flow_0z050c8</bpmn:incoming>
+      <bpmn:outgoing>Flow_186x04b</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_LoginSucesso" name="Login Sucesso?">
+      <bpmn:incoming>Flow_186x04b</bpmn:incoming>
+      <bpmn:outgoing>Flow_12m6j0c</bpmn:outgoing>
+      <bpmn:outgoing>Flow_1u3252v</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Task_ExibirErroLogin" name="Exibir Mensagem de Erro">
+      <bpmn:incoming>Flow_1u3252v</bpmn:incoming>
+      <bpmn:outgoing>Flow_08w0g97</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ArmazenarJWT" name="Armazenar JWT e Redirecionar">
+      <bpmn:incoming>Flow_12m6j0c</bpmn:incoming>
+      <bpmn:outgoing>Flow_0r21l7s</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Task_ExibirFormAluno" name="Exibir Formulário de Criação (Dashboard)">
+      <bpmn:incoming>Flow_0r21l7s</bpmn:incoming>
+      <bpmn:outgoing>Flow_0w08r1n</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:userTask id="Task_PreencherDadosAluno" name="Preencher Dados do Aluno">
+      <bpmn:incoming>Flow_0w08r1n</bpmn:incoming>
+      <bpmn:outgoing>Flow_0axtpmi</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Task_EnviarCriacao" name="Enviar POST /alunos (com JWT no Header)">
+      <bpmn:incoming>Flow_0axtpmi</bpmn:incoming>
+      <bpmn:outgoing>Flow_05z9c0y</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_VerificarJWT" name="Middleware: Verificar Validade do JWT">
+      <bpmn:incoming>Flow_05z9c0y</bpmn:incoming>
+      <bpmn:outgoing>Flow_12x4n08</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gateway_TokenValido" name="Token Válido?">
+      <bpmn:incoming>Flow_12x4n08</bpmn:incoming>
+      <bpmn:outgoing>Flow_13z4q0c</bpmn:outgoing>
+      <bpmn:outgoing>Flow_10d0f5g</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Task_Responder401" name="Responder com 401 Não Autorizado">
+      <bpmn:incoming>Flow_10d0f5g</bpmn:incoming>
+      <bpmn:outgoing>Flow_0r0l4v1</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Task_ExecutarCriacao" name="Executar Lógica de Criação">
+      <bpmn:incoming>Flow_13z4q0c</bpmn:incoming>
+      <bpmn:outgoing>Flow_139h87a</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:task id="Task_GravarAluno" name="Gravar Novo Registro de Aluno">
+      <bpmn:incoming>Flow_139h87a</bpmn:incoming>
+      <bpmn:outgoing>Flow_08wz9k5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:serviceTask id="Task_ResponderSucesso201" name="Responder com Sucesso (Status 201)">
+      <bpmn:incoming>Flow_08wz9k5</bpmn:incoming>
+      <bpmn:outgoing>Flow_10n493q</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:task id="Task_AtualizarLista" name="Atualizar Lista de Alunos na Tela">
+      <bpmn:incoming>Flow_10n493q</bpmn:incoming>
+      <bpmn:outgoing>Flow_03d2o6i</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="EndEvent_ErroSeguranca" name="Fim do Processo (Erro de Segurança)">
+      <bpmn:incoming>Flow_0r0l4v1</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:endEvent id="EndEvent_AlunoCriado" name="Fim do Processo (Aluno Criado)">
+      <bpmn:incoming>Flow_03d2o6i</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_0g72h5p" sourceRef="StartEvent_Login" targetRef="Task_ExibirLogin" />
+    <bpmn:sequenceFlow id="Flow_0e2w7b8" sourceRef="Task_ExibirLogin" targetRef="Task_InserirCredenciais" />
+    <bpmn:sequenceFlow id="Flow_08z63z8" sourceRef="Task_InserirCredenciais" targetRef="Task_EnviarLogin" />
+    <bpmn:sequenceFlow id="Flow_0z050c8" sourceRef="Task_EnviarLogin" targetRef="Task_ValidarCredenciais" />
+    <bpmn:sequenceFlow id="Flow_186x04b" sourceRef="Task_ValidarCredenciais" targetRef="Gateway_LoginSucesso" />
+    <bpmn:sequenceFlow id="Flow_12m6j0c" name="Sim" sourceRef="Gateway_LoginSucesso" targetRef="Task_ArmazenarJWT" />
+    <bpmn:sequenceFlow id="Flow_1u3252v" name="Não" sourceRef="Gateway_LoginSucesso" targetRef="Task_ExibirErroLogin" />
+    <bpmn:sequenceFlow id="Flow_08w0g97" sourceRef="Task_ExibirErroLogin" targetRef="Task_ExibirLogin" />
+    <bpmn:sequenceFlow id="Flow_0r21l7s" sourceRef="Task_ArmazenarJWT" targetRef="Task_ExibirFormAluno" />
+    <bpmn:sequenceFlow id="Flow_0w08r1n" sourceRef="Task_ExibirFormAluno" targetRef="Task_PreencherDadosAluno" />
+    <bpmn:sequenceFlow id="Flow_0axtpmi" sourceRef="Task_PreencherDadosAluno" targetRef="Task_EnviarCriacao" />
+    <bpmn:sequenceFlow id="Flow_05z9c0y" sourceRef="Task_EnviarCriacao" targetRef="Task_VerificarJWT" />
+    <bpmn:sequenceFlow id="Flow_12x4n08" sourceRef="Task_VerificarJWT" targetRef="Gateway_TokenValido" />
+    <bpmn:sequenceFlow id="Flow_13z4q0c" name="Válido" sourceRef="Gateway_TokenValido" targetRef="Task_ExecutarCriacao" />
+    <bpmn:sequenceFlow id="Flow_10d0f5g" name="Inválido" sourceRef="Gateway_TokenValido" targetRef="Task_Responder401" />
+    <bpmn:sequenceFlow id="Flow_0r0l4v1" sourceRef="Task_Responder401" targetRef="EndEvent_ErroSeguranca" />
+    <bpmn:sequenceFlow id="Flow_139h87a" sourceRef="Task_ExecutarCriacao" targetRef="Task_GravarAluno" />
+    <bpmn:sequenceFlow id="Flow_08wz9k5" sourceRef="Task_GravarAluno" targetRef="Task_ResponderSucesso201" />
+    <bpmn:sequenceFlow id="Flow_10n493q" sourceRef="Task_ResponderSucesso201" targetRef="Task_AtualizarLista" />
+    <bpmn:sequenceFlow id="Flow_03d2o6i" sourceRef="Task_AtualizarLista" targetRef="EndEvent_AlunoCriado" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_CRUD_Aluno">
+      <bpmndi:BPMNShape id="Participant_Processo_Di" bpmnElement="Participant_Processo" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1800" height="700" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Database_Di" bpmnElement="Lane_Database" isHorizontal="true">
+        <dc:Bounds x="190" y="570" width="1770" height="210" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Backend_Di" bpmnElement="Lane_Backend" isHorizontal="true">
+        <dc:Bounds x="190" y="340" width="1770" height="230" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Frontend_Di" bpmnElement="Lane_Frontend" isHorizontal="true">
+        <dc:Bounds x="190" y="210" width="1770" height="130" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_Usuario_Di" bpmnElement="Lane_Usuario" isHorizontal="true">
+        <dc:Bounds x="190" y="80" width="1770" height="130" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Login_Di" bpmnElement="StartEvent_Login">
+        <dc:Bounds x="222" y="112" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExibirLogin_Di" bpmnElement="Task_ExibirLogin">
+        <dc:Bounds x="300" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_InserirCredenciais_Di" bpmnElement="Task_InserirCredenciais">
+        <dc:Bounds x="430" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EnviarLogin_Di" bpmnElement="Task_EnviarLogin">
+        <dc:Bounds x="560" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidarCredenciais_Di" bpmnElement="Task_ValidarCredenciais">
+        <dc:Bounds x="700" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_LoginSucesso_Di" bpmnElement="Gateway_LoginSucesso" isMarkerVisible="true">
+        <dc:Bounds x="835" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExibirErroLogin_Di" bpmnElement="Task_ExibirErroLogin">
+        <dc:Bounds x="970" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ArmazenarJWT_Di" bpmnElement="Task_ArmazenarJWT">
+        <dc:Bounds x="970" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExibirFormAluno_Di" bpmnElement="Task_ExibirFormAluno">
+        <dc:Bounds x="1100" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_PreencherDadosAluno_Di" bpmnElement="Task_PreencherDadosAluno">
+        <dc:Bounds x="1230" y="100" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_EnviarCriacao_Di" bpmnElement="Task_EnviarCriacao">
+        <dc:Bounds x="1360" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_VerificarJWT_Di" bpmnElement="Task_VerificarJWT">
+        <dc:Bounds x="1500" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TokenValido_Di" bpmnElement="Gateway_TokenValido" isMarkerVisible="true">
+        <dc:Bounds x="1635" y="385" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Responder401_Di" bpmnElement="Task_Responder401">
+        <dc:Bounds x="1770" y="370" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ExecutarCriacao_Di" bpmnElement="Task_ExecutarCriacao">
+        <dc:Bounds x="1770" y="490" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GravarAluno_Di" bpmnElement="Task_GravarAluno">
+        <dc:Bounds x="1770" y="610" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ResponderSucesso201_Di" bpmnElement="Task_ResponderSucesso201">
+        <dc:Bounds x="1500" y="490" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_AtualizarLista_Di" bpmnElement="Task_AtualizarLista">
+        <dc:Bounds x="1630" y="240" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_ErroSeguranca_Di" bpmnElement="EndEvent_ErroSeguranca">
+        <dc:Bounds x="1900" y="392" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_AlunoCriado_Di" bpmnElement="EndEvent_AlunoCriado">
+        <dc:Bounds x="1900" y="632" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_0g72h5p_Di" bpmnElement="Flow_0g72h5p">
+        <di:waypoint x="258" y="130" />
+        <di:waypoint x="279" y="130" />
+        <di:waypoint x="279" y="280" />
+        <di:waypoint x="300" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0e2w7b8_Di" bpmnElement="Flow_0e2w7b8">
+        <di:waypoint x="350" y="240" />
+        <di:waypoint x="350" y="140" />
+        <di:waypoint x="430" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08z63z8_Di" bpmnElement="Flow_08z63z8">
+        <di:waypoint x="480" y="180" />
+        <di:waypoint x="480" y="280" />
+        <di:waypoint x="560" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0z050c8_Di" bpmnElement="Flow_0z050c8">
+        <di:waypoint x="610" y="320" />
+        <di:waypoint x="610" y="410" />
+        <di:waypoint x="700" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_186x04b_Di" bpmnElement="Flow_186x04b">
+        <di:waypoint x="800" y="410" />
+        <di:waypoint x="835" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12m6j0c_Di" bpmnElement="Flow_12m6j0c">
+        <di:waypoint x="860" y="385" />
+        <di:waypoint x="860" y="280" />
+        <di:waypoint x="970" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1u3252v_Di" bpmnElement="Flow_1u3252v">
+        <di:waypoint x="885" y="410" />
+        <di:waypoint x="970" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08w0g97_Di" bpmnElement="Flow_08w0g97">
+        <di:waypoint x="1020" y="370" />
+        <di:waypoint x="1020" y="280" />
+        <di:waypoint x="400" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r21l7s_Di" bpmnElement="Flow_0r21l7s">
+        <di:waypoint x="1070" y="280" />
+        <di:waypoint x="1100" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0w08r1n_Di" bpmnElement="Flow_0w08r1n">
+        <di:waypoint x="1150" y="240" />
+        <di:waypoint x="1150" y="140" />
+        <di:waypoint x="1230" y="140" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0axtpmi_Di" bpmnElement="Flow_0axtpmi">
+        <di:waypoint x="1280" y="180" />
+        <di:waypoint x="1280" y="280" />
+        <di:waypoint x="1360" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_05z9c0y_Di" bpmnElement="Flow_05z9c0y">
+        <di:waypoint x="1410" y="320" />
+        <di:waypoint x="1410" y="410" />
+        <di:waypoint x="1500" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_12x4n08_Di" bpmnElement="Flow_12x4n08">
+        <di:waypoint x="1600" y="410" />
+        <di:waypoint x="1635" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_13z4q0c_Di" bpmnElement="Flow_13z4q0c">
+        <di:waypoint x="1660" y="435" />
+        <di:waypoint x="1660" y="530" />
+        <di:waypoint x="1770" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10d0f5g_Di" bpmnElement="Flow_10d0f5g">
+        <di:waypoint x="1685" y="410" />
+        <di:waypoint x="1770" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0r0l4v1_Di" bpmnElement="Flow_0r0l4v1">
+        <di:waypoint x="1870" y="410" />
+        <di:waypoint x="1900" y="410" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_139h87a_Di" bpmnElement="Flow_139h87a">
+        <di:waypoint x="1820" y="570" />
+        <di:waypoint x="1820" y="610" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_08wz9k5_Di" bpmnElement="Flow_08wz9k5">
+        <di:waypoint x="1870" y="650" />
+        <di:waypoint x="1730" y="650" />
+        <di:waypoint x="1730" y="530" />
+        <di:waypoint x="1600" y="530" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10n493q_Di" bpmnElement="Flow_10n493q">
+        <di:waypoint x="1550" y="490" />
+        <di:waypoint x="1550" y="280" />
+        <di:waypoint x="1630" y="280" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_03d2o6i_Di" bpmnElement="Flow_03d2o6i">
+        <di:waypoint x="1730" y="280" />
+        <di:waypoint x="1918" y="280" />
+        <di:waypoint x="1918" y="632" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
